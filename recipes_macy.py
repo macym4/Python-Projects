@@ -1,5 +1,4 @@
 """
-6.101 Lab 5:
 Recipes
 """
 
@@ -7,7 +6,6 @@ import pickle
 import sys
 
 sys.setrecursionlimit(20_000)
-# NO ADDITIONAL IMPORTS!
 
 
 def atomic_ingredient_costs(recipes):
