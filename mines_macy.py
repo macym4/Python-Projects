@@ -1,5 +1,4 @@
 """
-6.101 Lab 7:
 Six Double-Oh Mines
 """
 
@@ -7,8 +6,6 @@ Six Double-Oh Mines
 
 import typing
 import doctest
-
-# NO ADDITIONAL IMPORTS ALLOWED!
 
 
 def dump(game):
@@ -29,7 +26,6 @@ def dump(game):
 
 
 # 2-D IMPLEMENTATION
-
 
 def new_game_2d(nrows, ncolumns, mines):
     """
