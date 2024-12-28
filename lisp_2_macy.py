@@ -1,5 +1,4 @@
 """
-6.101 Lab:
 LISP Interpreter Part 2
 """
 
@@ -7,8 +6,6 @@ LISP Interpreter Part 2
 import sys
 
 sys.setrecursionlimit(20_000)
-
-# NO ADDITIONAL IMPORTS!
 
 #############################
 # Scheme-related Exceptions #
