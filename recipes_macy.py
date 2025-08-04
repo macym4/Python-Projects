@@ -1,12 +1,7 @@
-"""
-Recipes
-"""
-
 import pickle
 import sys
 
 sys.setrecursionlimit(20_000)
-
 
 def atomic_ingredient_costs(recipes):
     """
@@ -318,66 +313,35 @@ def all_flat_recipes(recipes, food_item, allergy=()):
 
 
 def all_recipes_recur_helper():
-    """
-    Creates a recursive helper for the all recipes function.
-    """
-
     def all_recipes_recur(recipes, food_item, compound_dict, atomic_dict, allergy):
-        """
-        Creates a recursive function that takes in recipes in their raw form and a food
-        item and returns a list of dictionaries of all of that food item's possible
-        recipes.
-        """
-        flat_recipes = []
-        food_recipes = []
-
         if food_item in atomic_dict:
             return [{food_item: 1}]
-
-        try:
-            food_recipes = compound_dict[food_item]
-        except KeyError:
-            flat_recipes = []
+        
+        flat_recipes = []
+        food_recipes = compound_dict.get(food_item, [])
 
         for recipe in food_recipes:
-            final_list = []
+            ingredient_lists = []
 
-            for ingredient_tuple in recipe:
-                ingredient = ingredient_tuple[0]
-
+            for ingredient, qty in recipe:
                 if ingredient in compound_dict:
-                    something_new = all_flat_recipes(recipes, ingredient, allergy)
-                    scaled_recipes = []
-
-                    for one_recipe in something_new:
-                        scaled_recipes.append(
-                            scaled_flat_recipe(one_recipe, ingredient_tuple[1])
-                        )
-
-                    final_list.append(scaled_recipes)
-
+                    sub_recipes = all_flat_recipes(recipes, ingredient, allergy)
+                    ingredient_lists.append([scaled_flat_recipe(r, qty) for r in sub_recipes])
                 elif ingredient in atomic_dict:
-                    final_list.append([{ingredient: ingredient_tuple[1]}])
+                    ingredient_lists.append([{ingredient: qty}])
+                else:
+                    ingredient_lists.append(None)
 
+            if None in ingredient_lists:
+                continue
 
-                elif ingredient not in compound_dict and ingredient not in atomic_dict:
-                    final_list.append(None)
-
-            for val in final_list:
-                if val is None:
-                    final_list = 0
-
-            #checks to make sure the returning value is in the right nesting level
             try:
-                if isinstance(final_list[0][0], list):
-                    flat_recipe = combined_flat_recipes(final_list[0])
-                elif isinstance(final_list[0][0], dict):
-                    flat_recipe = combined_flat_recipes(final_list)
-                flat_recipes.extend(flat_recipe)
-            except TypeError:
-                flat_recipe = None
-            except IndexError:
-                flat_recipe = None
+                if isinstance(ingredient_lists[0][0], list):
+                    flat_recipes.extend(combined_flat_recipes(ingredient_lists[0]))
+                else:
+                    flat_recipes.extend(combined_flat_recipes(ingredient_lists))
+            except (TypeError, IndexError):
+                pass
 
         return flat_recipes
 
@@ -421,235 +385,3 @@ if __name__ == "__main__":
     #     if len(compound[key]) != 1:
     #         tally += 1
     # print(tally)
-
-    # LOWEST COST
-    dairy_recipes = [
-        ("compound", "milk", [("cow", 2), ("milking stool", 1)]),
-        ("compound", "cheese", [("milk", 1), ("time", 1)]),
-        ("compound", "cheese", [("cutting-edge laboratory", 11)]),
-        ("atomic", "milking stool", 5),
-        ("atomic", "cutting-edge laboratory", 1000),
-        ("atomic", "time", 10000),
-        ("atomic", "cow", 100),
-    ]
-
-    # print(f'FINAL ANSWER: {lowest_cost(dairy_recipes, "milk")}')
-    # assert lowest_cost(dairy_recipes, "cheese") == 10205
-
-    # print(f'FINAL ANSWER: {lowest_cost(example_recipes, "burger")}')
-    # print(f'ACTUAL ANSWER: {10685}')
-
-    # print(f'FINAL ANSWER: {lowest_cost(example_recipes, "time")}')
-    # print(f'ACTUAL ANSWER: {10000}')
-    # assert lowest_cost(dairy_recipes, "milk") == 205
-    dairy_recipes_2 = [
-        ("compound", "milk", [("cow", 2), ("milking stool", 1)]),
-        ("compound", "cheese", [("milk", 1), ("time", 1)]),
-        ("compound", "cheese", [("cutting-edge laboratory", 11)]),
-        ("atomic", "milking stool", 5),
-        ("atomic", "cutting-edge laboratory", 1000),
-        ("atomic", "time", 10000),
-    ]
-
-    print(
-        all_flat_recipes(
-            example_recipes,
-            "cheese",
-        )
-    )
-    # print(lowest_cost(example_recipes, "milk", ("cow",)))
-    # print(lowest_cost(example_recipes, "burger", ("cow",)))
-    # print(lowest_cost(example_recipes, "chili", ("cow",)))
-
-    # print("all should be None")
-
-    # CHEAPEST FLAT RECIPES!!!
-    soup = {
-        "carrots": 5,
-        "celery": 3,
-        "broth": 2,
-        "noodles": 1,
-        "chicken": 3,
-        "salt": 10,
-    }
-    # print(scaled_flat_recipe(soup, 3))
-    carrot_cake = {
-        "carrots": 5,
-        "flour": 8,
-        "sugar": 10,
-        "oil": 5,
-        "eggs": 4,
-        "salt": 3,
-    }
-    bread = {"flour": 10, "sugar": 3, "oil": 3, "yeast": 15, "salt": 5}
-    new_list = [carrot_cake, bread, soup]
-    # print(add_flat_recipes(new_list))
-    raw_flat_recipes = [
-        [("time", 1), ("cow", 2), ("milking stool", 1)],
-        ("cutting-edge laboratory", 11),
-    ]
-    # print(convert_flat_recipe(raw_flat_recipes, "cheese"))
-
-    # print(example_recipes)
-    # print(cheapest_flat_recipe(example_recipes, "burger"))
-
-    # print(combined_flat_recipes(
-    #     [[{'peanut butter': 1}, {'almond butter': 1}],
-    #     [{'jelly': 2}]]
-    # ))
-
-    # HERER!!!!!!
-    cakes = [
-        [{"cake": 1}, {"gluten free cake": 1}],
-        [{"cream cheese icing": 1}],
-        [{"cake": 20}, {"cream cheese icing": 1}],
-    ]
-    inp = [[{"a": 1, "b": 2}]]
-
-    # print(all_flat_recipes(example_recipes, "cheese"))
-    # print(cheapest_flat_recipe(dairy_recipes, "cheese"))
-    # print({"cow": 2, "milking stool": 1, "time": 1})
-
-    # # cheese
-    # # print([{"cow": 1, "milking stool": 1, "time": 1},
-    # {"cutting-edge laboratory": 11}])
-    # # print([{'cake': 1, 'vanilla icing': 1}, {'cake': 1,
-    # 'cream cheese icing': 1}, {'gluten free cake': 1, 'vanilla icing': 1},
-    # {'gluten free cake': 1, 'cream cheese icing': 1}]
-# )
-# print(all_flat_recipes(example_recipes, "burger"))
-# print({
-# "yeast": 2,
-# "salt": 3,
-# "flour": 4,
-# "cow": 2,
-# "milking stool": 1,
-# "time": 1,
-# "lettuce": 1,
-# "tomato": 30,
-# "vinegar": 3,
-# "sugar": 2,
-# "cinnamon": 1,
-# })
-# print(cheapest_flat_recipe(dairy_recipes, "cheese",))
-
-# def create_recur_find_cost():
-#     def recur_find_cost(overall_items, compound_dict, atomic_dict, price,
-# allergy = ()):
-#         if overall_items[0][0] == [allergy]:
-#             return None
-
-#         #print(f'Loop is being restarted. Current status of items:
-# {overall_items}')
-#         for ix, item in enumerate(overall_items):
-
-#             if allergy:
-#                 #print("YES. Allergy")
-#                 #print(item[0])
-#                 if item[0] in allergy:
-#                     #print('item 0 is in allergy')
-#                     if item[0] in compound_dict.keys():
-#                         #print(compound_dict)
-#                         compound_dict.pop(item[0])
-#                         #print(compound_dict)
-#                     if item[0] in atomic_dict.keys():
-#                         atomic_dict.pop(item[0])
-#             #print(f'After allegry, current status of items:
-# {overall_items}')
-#             #print(f"Moved to the next item in the list: {item}")
-#             #print(f'Current status of items: {overall_items}')
-#             if type(item) == int or type(item) == float:
-#                 #print("Found an int")
-#                 continue
-
-#             #if the first item is COMPOUND
-#             if item[0] in compound_dict:
-#                 #print(f"Made it into the compound loop for {item}")
-#                 for iy, method_of_cooking in enumerate(compound_dict[item[0]]):
-#                     if iy == 0:
-#                         possible_prices = []
-#                     #print("Made it to recursion in compound; restarting")
-#                     possible_prices.append(recur_find_cost(method_of_cooking,
-# compound_dict, atomic_dict, price, allergy = allergy))
-#                 final_price = min(possible_prices) * item[1]
-#                 #print(f'status of possible prices: {possible_prices}')
-#                 #print("Possible prices min put in item")
-#                 #print(item)
-#                 #print(f"Final price put into the list: {final_price}")
-#                 overall_items = overall_items[:ix] + [final_price] +
-# overall_items[ix+1:]
-
-
-#             #If the first item is ATOMIC
-#             #print(f'here is atomic dict: {atomic_dict}')
-#             if allergy:
-#                 if item[0] in allergy:
-#                     #print(atomic_dict.keys())
-#                     if item[0] in atomic_dict.keys():
-#                         atomic_dict.pop(item[0])
-#             #print(f'here is atomic dict after I supposedly removed stuff:
-# {atomic_dict}')
-
-#             if item[0] in atomic_dict:
-#                 #print("Made it into the atomic loop")
-#                 #print(atomic_dict[item[0]])
-#                 item = atomic_dict[item[0]] * item[1]
-#                 overall_items = overall_items[:ix] + [item] +
-# overall_items[ix+1:]
-
-#             elif item[0] not in atomic_dict and item[0] not in compound_dict:
-#                 #print("made it to goal")
-#                 overall_items = overall_items[:ix] + [float('inf')] +
-# overall_items[ix+1:]
-
-
-#         #print(f"Out of the for loop, the full list of items
-# I'm considering is : {overall_items}")
-#         count = 0
-#         for price_for_item in overall_items:
-#                 if not isinstance(price_for_item, (int, float)):
-#                    break
-#                 count += 1
-#                 if price_for_item == None:
-#                     return None
-#         if count == len(overall_items):
-#             #print(f"hi I basically printed this: {overall_items}")
-#             for price_for_item in overall_items:
-#                 price += price_for_item
-
-#         #print(f'Returning the price... {price}')
-#         return price
-
-#     return recur_find_cost
-
-# CHEAPEST FLAT RECIPE
-# if food_item[0] in atomic_dict:
-#         return food_item
-
-#     possible_recipes = compound_dict[food_item]
-#     final_recipe = []
-
-#     print(food_item)
-#     while possible_recipes:
-#         current = possible_recipes.pop(0)
-#         print(current)
-#         for ingredient in current:
-
-#             if ingredient[0] in atomic_dict:
-#                 print("made it to atomic loop")
-#                 final_recipe.append(atomic_dict[ingredient[0]])
-
-#             if ingredient[0] in compound_dict:
-#                 print("made it to compound loop")
-#                 for ix, recipe in enumerate(compound_dict[ingredient[0]]):
-#                     if ix == 0:
-#                         possible_recipes = []
-#                     possible_recipes.append(find_recipes(recipe,
-# compound_dict, atomic_dict, allergy))
-
-#                 for one_recipe in possible_recipes:
-#                     final_recipe.append(ingredient[0] + one_recipe)
-
-#     print(final_recipe)
-
-#     return final_recipe
