@@ -1,12 +1,10 @@
 """
-Six Double-Oh Mines
+Mines
 """
-
 #!/usr/bin/env python3
 
 import typing
 import doctest
-
 
 def dump(game):
     """
@@ -26,6 +24,7 @@ def dump(game):
 
 
 # 2-D IMPLEMENTATION
+
 
 def new_game_2d(nrows, ncolumns, mines):
     """
