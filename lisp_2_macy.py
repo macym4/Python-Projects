@@ -1,11 +1,11 @@
 """
-LISP Interpreter Part 2
+LISP Interpreter
 """
-
-#!/usr/bin/env python3
 import sys
 
 sys.setrecursionlimit(20_000)
+
+# MINIMIZE TYPECHECKING
 
 #############################
 # Scheme-related Exceptions #
@@ -728,6 +728,7 @@ if __name__ == "__main__":
     import os
 
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+
     import schemerepl
 
     schemerepl.SchemeREPL(
